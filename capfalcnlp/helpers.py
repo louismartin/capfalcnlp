@@ -92,8 +92,6 @@ def extract(filepath, output_dir):
 
     def get_extension(filename, extensions):
         possible_extensions = [ext for ext in extensions if filename.endswith(ext)]
-        if len(possible_extensions) == 0:
-            raise Exception(f"File {filename} has an unknown extension")
         # Take the longest (.tar.gz should take precedence over .gz)
         return max(possible_extensions, key=lambda ext: len(ext))
 

@@ -3,7 +3,7 @@ import re
 
 
 @lru_cache()
-def get_spacy_model(language="fr", size="md"):
+def get_spacy_model(language="fr", size="md", **kwargs):
     # Inline lazy import because importing spacy is slow
     import spacy
 
@@ -91,3 +91,7 @@ def count_content_tokens(text, **kwargs):
 
 def remove_multiple_whitespaces(text):
     return re.sub(r"  +", " ", text)
+
+
+def count_words(text, **kwargs):
+    return len([word for word in spacy_process(text, **kwargs) if not word.is_punct])
