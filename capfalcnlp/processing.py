@@ -78,11 +78,12 @@ def get_spacy_tokenizer(**kwargs):
     return spacy_model.Defaults.create_tokenizer(spacy_model)
 
 
-def get_spacy_content_tokens(text, **kwargs):
-    def is_content_token(token):
-        return not token.is_stop and not token.is_punct and token.ent_type_ == ""  # Not named entity
+def is_spacy_content_token(token):
+    return not token.is_stop and not token.is_punct and token.ent_type_ == ""  # Not named entity
 
-    return [token for token in get_spacy_tokenizer(**kwargs)(text) if is_content_token(token)]
+
+def get_spacy_content_tokens(text, **kwargs):
+    return [token for token in get_spacy_tokenizer(**kwargs)(text) if is_spacy_content_token(token)]
 
 
 def count_content_tokens(text, **kwargs):
