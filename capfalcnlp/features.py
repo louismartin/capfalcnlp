@@ -7,25 +7,25 @@ import spacy
 
 from capfalcnlp.processing import (
     remove_multiple_whitespaces,
+    get_spacy_content_tokens,
     split_in_sentences,
     count_content_tokens,
-    remove_punctuation_characters,
 )
 from capfalcnlp.paths import FASTTEXT_EMBEDDINGS_DIR
 from capfalcnlp.helpers import yield_lines, download_and_extract, download
 
 
-def download_fasttext_embeddings_if_needed(language="fr", training_corpus="common_crawl"):
+def download_fasttext_embeddings_if_needed(language='fr', training_corpus='common_crawl'):
     # TODO: Repeated code
-    if training_corpus == "common_crawl":
-        fasttext_embeddings_path = FASTTEXT_EMBEDDINGS_DIR / f"cc.{language}.300.vec"
-        url = f"https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.{language}.300.vec.gz"
+    if training_corpus == 'common_crawl':
+        fasttext_embeddings_path = FASTTEXT_EMBEDDINGS_DIR / f'cc.{language}.300.vec'
+        url = f'https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.{language}.300.vec.gz'
         if not fasttext_embeddings_path.exists():
             fasttext_embeddings_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(download_and_extract(url)[0], fasttext_embeddings_path)
-    elif training_corpus == "wikipedia":
-        fasttext_embeddings_path = FASTTEXT_EMBEDDINGS_DIR / f"wiki.{language}.vec"
-        url = f"https://dl.fbaipublicfiles.com/fasttext/vectors-wiki/wiki.{language}.vec"
+    elif training_corpus == 'wikipedia':
+        fasttext_embeddings_path = FASTTEXT_EMBEDDINGS_DIR / f'wiki.{language}.vec'
+        url = f'https://dl.fbaipublicfiles.com/fasttext/vectors-wiki/wiki.{language}.vec'
         if not fasttext_embeddings_path.exists():
             fasttext_embeddings_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(download(url), fasttext_embeddings_path)
@@ -35,14 +35,14 @@ def download_fasttext_embeddings_if_needed(language="fr", training_corpus="commo
 
 
 @lru_cache()
-def get_word2rank(vocab_size=10 ** 5, language="fr", training_corpus="common_crawl"):
+def get_word2rank(vocab_size=10 ** 5, language='fr', training_corpus='common_crawl'):
     word2rank = {}
     line_generator = yield_lines(download_fasttext_embeddings_if_needed(language, training_corpus))
     next(line_generator)  # Skip the first line (header)
     for i, line in enumerate(line_generator):
         if (i + 1) > vocab_size:
             break
-        word = line.split(" ")[0]
+        word = line.split(' ')[0]
         word2rank[word] = i
     return word2rank
 
@@ -63,7 +63,7 @@ def is_number(word):
 
 
 def clean_text(text):
-    text = text.replace("\n", " ")
+    text = text.replace('\n', ' ')
     return remove_multiple_whitespaces(text)
 
 
@@ -123,20 +123,7 @@ def is_slang(word):
     return word in slang_words
 
 
-def is_time(word):
-    return re.match(r'\d+[hH:]\d*', word) is not None
-
-
-def skip_word_detection(token):
-    if len(remove_punctuation_characters(str(token))) <= 1:
-        # Either full punctuation or contracted form like j', d', ...
-        return True
-    if is_time(str(token)):
-        return True
-    return False
-
-
-def get_word_detectors():
+def get_detectors():
     return {
         # Some detectors need to take the lemma as input, other need to take the word exactly as it is written.
         'Rare': is_rare_word,
@@ -148,8 +135,20 @@ def get_word_detectors():
     }
 
 
+def run_detectors(text):
+    text = clean_text(text)
+    detector_results = {}
+    for token in get_spacy_content_tokens(text, language='fr'):
+        if str(token) in detector_results:  # No need to run the detectors again on a word that was already seen.
+            continue
+        detector_results = [name for name, detector in get_detectors().items() if detector(token.lemma_)]
+        if len(detector_results) > 0:
+            detector_results[str(token)] = detector_results
+    return detector_results
+
+
 def get_substring_start_indexes(substring, text):
-    # TODO: We might include some parts of words, e.g. if substring = "mange", "manger" will also be included if it is present in the text
+    # TODO: We might include some parts of words, e.g. if substring = 'mange', 'manger' will also be included if it is present in the text
     start_indexes = []
     offset = 0
     remaining_text = text
