@@ -11,7 +11,6 @@ import time
 from urllib.request import urlretrieve
 import zipfile
 
-import git
 from tqdm import tqdm
 
 
@@ -186,12 +185,6 @@ def get_ref_files_prefix(ref_files):
     else:
         prefix = ref_files[0]
     return prefix
-
-
-def git_clone(url, output_dir, overwrite=True):
-    if Path(output_dir).exists():
-        shutil.rmtree(output_dir)
-    git.Repo.clone_from(url, output_dir)
 
 
 def replace_lrb_rrb_file(filepath):
