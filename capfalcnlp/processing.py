@@ -39,7 +39,8 @@ def add_leff(spacy_model):
 
 @lru_cache(maxsize=10 ** 6)
 def spacy_process(text, **kwargs):
-    return get_spacy_model(**kwargs)(str(text))
+    with mute():
+        return get_spacy_model(**kwargs)(str(text))
 
 
 @lru_cache()

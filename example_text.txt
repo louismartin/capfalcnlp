@@ -1,0 +1,5 @@
+L'intelligence artificielle (IA) est « l'ensemble des théories et des techniques mises en œuvre en vue de réaliser des machines capables de simuler l'intelligence humaine ».
+
+Elle correspond donc à un ensemble de concepts et de technologies plus qu'à une discipline autonome constituée2. Certaines instances, notamment la CNIL, relevant le peu de précision dans la définition de l'IA, introduisent ce sujet comme « le grand mythe de notre temps ».
+
+Souvent classée dans le groupe des sciences cognitives, elle fait appel à la neurobiologie computationnelle (particulièrement aux réseaux neuronaux), à la logique mathématique (partie des mathématiques et de la philosophie) et à l'informatique. Elle recherche des méthodes de résolution de problèmes à forte complexité logique ou algorithmique. Par extension elle désigne, dans le langage courant, les dispositifs imitant ou remplaçant l'homme dans certaines mises en œuvre de ses fonctions cognitives.

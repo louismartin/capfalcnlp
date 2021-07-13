@@ -126,7 +126,7 @@ def is_slang(word):
 
 
 def remove_punctuation_characters(word):
-    punctuation = string.punctuation + '’'
+    punctuation = string.punctuation + '’' + '\n'
     return ''.join([char for char in word if char not in punctuation])
 
 
