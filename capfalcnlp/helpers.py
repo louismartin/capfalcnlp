@@ -15,6 +15,20 @@ import git
 from tqdm import tqdm
 
 
+def read_file(filepath):
+    def _read_file_with_encoding(filepath, encoding='utf8'):
+        with Path(filepath).open('rt', encoding=encoding) as f:
+            return f.read()
+
+    for encoding in ['utf8', 'latin-1']:
+        try:
+            return _read_file_with_encoding(filepath, encoding=encoding)
+        except UnicodeDecodeError as e:
+            last_exception = e
+            pass
+    raise last_exception
+
+
 def yield_lines(filepath, gzipped=False, n_lines=None):
     filepath = Path(filepath)
     open_function = open
