@@ -11,6 +11,7 @@ from capfalcnlp.processing import (
     get_spacy_content_tokens,
     split_in_sentences,
     count_content_tokens,
+    spacy_process,
 )
 from capfalcnlp.paths import FASTTEXT_EMBEDDINGS_DIR
 from capfalcnlp.helpers import yield_lines, download_and_extract, download
@@ -182,3 +183,17 @@ def get_substring_start_indexes(substring, text):
 def get_long_sentences(text, threshold=11, count_method=count_content_tokens):
     sentences = split_in_sentences(text)
     return [sentence for sentence in sentences if count_method(sentence) > threshold]
+
+
+def get_detections(text):
+    detections = []
+    for token in spacy_process(text, language='fr'):
+        detector_results = []
+        if not skip_word_detection(token):
+            detected_types = [name for name, detector in get_word_detectors().items() if detector(token)]
+            for detected_type in detected_types:
+                detections.append({'text': str(token), 'char_offset': token.idx, 'detected_type': detected_type})
+
+    for sentence in get_long_sentences(text):
+        detections.append({'text': sentence, 'char_offset': text.index(sentence), 'detected_type': 'Phrase Longue'})
+    return detections

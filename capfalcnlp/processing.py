@@ -2,6 +2,8 @@ from functools import lru_cache
 import re
 import string
 
+from capfalcnlp.helpers import mute
+
 
 @lru_cache()
 def get_spacy_model(language='fr', size='md', **kwargs):
@@ -25,11 +27,13 @@ def get_spacy_model(language='fr', size='md', **kwargs):
 
 
 def add_leff(spacy_model):
-    from spacy_lefff import LefffLemmatizer, POSTagger
 
-    # TODO: Very verbose, maybe mute the following
-    spacy_model.add_pipe(POSTagger(), name='pos', after='parser')
-    spacy_model.add_pipe(LefffLemmatizer(after_melt=True), name='lefff', after='pos')
+    with mute():
+        # TODO: Still does not mute everything
+        from spacy_lefff import LefffLemmatizer, POSTagger
+
+        spacy_model.add_pipe(POSTagger(), name='pos', after='parser')
+        spacy_model.add_pipe(LefffLemmatizer(after_melt=True), name='lefff', after='pos')
     return spacy_model
 
 
