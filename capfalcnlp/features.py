@@ -7,9 +7,9 @@ import spacy
 
 from capfalcnlp.processing import (
     remove_multiple_whitespaces,
-    get_spacy_content_tokens,
     split_in_sentences,
     count_content_tokens,
+    remove_punctuation_characters,
 )
 from capfalcnlp.paths import FASTTEXT_EMBEDDINGS_DIR
 from capfalcnlp.helpers import yield_lines, download_and_extract, download
@@ -123,7 +123,20 @@ def is_slang(word):
     return word in slang_words
 
 
-def get_detectors():
+def is_time(word):
+    return re.match(r'\d+[hH:]\d*', word) is not None
+
+
+def skip_word_detection(token):
+    if len(remove_punctuation_characters(str(token))) <= 1:
+        # Either full punctuation or contracted form like j', d', ...
+        return True
+    if is_time(str(token)):
+        return True
+    return False
+
+
+def get_word_detectors():
     return {
         # Some detectors need to take the lemma as input, other need to take the word exactly as it is written.
         'Rare': is_rare_word,
@@ -133,18 +146,6 @@ def get_detectors():
         'Abbréviation': lambda word: is_abbreviation(word) or is_slang(word),
         'Nombre': is_number,
     }
-
-
-def run_detectors(text):
-    text = clean_text(text)
-    detector_results = {}
-    for token in get_spacy_content_tokens(text, language='fr'):
-        if str(token) in detector_results:  # No need to run the detectors again on a word that was already seen.
-            continue
-        detector_results = [name for name, detector in get_detectors().items() if detector(token.lemma_)]
-        if len(detector_results) > 0:
-            detector_results[str(token)] = detector_results
-    return detector_results
 
 
 def get_substring_start_indexes(substring, text):

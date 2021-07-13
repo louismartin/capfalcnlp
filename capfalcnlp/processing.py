@@ -1,5 +1,6 @@
 from functools import lru_cache
 import re
+import string
 
 
 @lru_cache()
@@ -96,3 +97,8 @@ def remove_multiple_whitespaces(text):
 
 def count_words(text, **kwargs):
     return len([word for word in spacy_process(text, **kwargs) if not word.is_punct])
+
+
+def remove_punctuation_characters(word):
+    punctuation = string.punctuation + '’'
+    return ''.join([char for char in word if char not in punctuation])
