@@ -1,2 +1,3 @@
 spacy<3
 spacy-lefff
+nltk==3.6.2
