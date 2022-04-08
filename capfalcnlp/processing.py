@@ -47,7 +47,7 @@ def spacy_process(text, **kwargs):
 def get_nltk_sentence_tokenizer(language='fr'):
     # Inline lazy import because importing nltk is slow
     import nltk
-
+    nltk.download('punkt')
     language = {
         'en': 'english',
         'fr': 'french',
